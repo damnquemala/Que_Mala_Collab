@@ -29,7 +29,7 @@
             overflow: hidden;
         }
 
-        /* Top Header & Counter Section */
+        /* Full-Width Header mirroring reference architecture */
         .site-header {
             display: flex;
             justify-content: space-between;
@@ -37,14 +37,16 @@
             background-color: var(--panel-bg);
             border: 2px solid var(--mala-purple);
             border-radius: 6px;
-            padding: 10px 20px;
+            padding: 12px 24px;
             margin-bottom: 12px;
             box-shadow: 0 0 10px rgba(114, 9, 183, 0.2);
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .header-title {
             margin: 0;
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             text-transform: uppercase;
             letter-spacing: 2px;
             color: var(--text-color);
@@ -56,20 +58,22 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             text-transform: uppercase;
             font-weight: bold;
             letter-spacing: 1px;
             color: #a4a1a4;
         }
 
-        /* Layout Architecture */
+        /* Responsive 3-Column Grid extending to container margins */
         .main-layout {
             display: grid;
-            grid-template-columns: 2fr 1fr 2fr;
-            gap: 12px;
+            grid-template-columns: 2.2fr 1fr 2.2fr; /* Widened side stream columns */
+            gap: 14px;
             flex-grow: 1;
-            height: calc(100vh - 85px); /* Adjusted layout to accommodate the header height */
+            height: calc(100vh - 95px);
+            width: 100%;
+            box-sizing: border-box;
         }
 
         /* Stream & Art Containers */
@@ -96,10 +100,10 @@
             border: none;
         }
 
-        /* Dynamic Visual Panel Art (Bottom half of columns) */
+        /* Dynamic Visual Panel Art utilizing screen scales */
         .artwork-panel {
             flex-grow: 1;
-            margin-top: 12px;
+            margin-top: 14px;
             border: 2px solid var(--mala-red);
             box-shadow: var(--border-glow);
             border-radius: 6px;
@@ -108,10 +112,9 @@
             background-color: var(--panel-bg);
             display: flex;
             align-items: flex-end;
-            padding: 15px;
+            padding: 18px;
         }
 
-        /* Linked perfectly to your exact artwork filename */
         #mala-art {
             background-image: linear-gradient(to top, rgba(11,9,10,0.95), rgba(11,9,10,0.3)), url('Gothic_Horror_Streamer_End_Screen.png'); 
         }
@@ -122,7 +125,7 @@
         }
 
         .panel-label {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 2px;
@@ -131,7 +134,7 @@
         #mala-art .panel-label { color: var(--mala-red); }
         #guest-art .panel-label { color: var(--mala-purple); }
 
-        /* Central Interactive Chat Widget */
+        /* Central Layout Chat Column */
         .chat-column {
             background-color: var(--panel-bg);
             border: 2px solid var(--accent-glow);
@@ -142,7 +145,6 @@
             height: 100%;
         }
 
-        /* Chat Tabs Configuration */
         .tab-header {
             display: flex;
             background: #000;
@@ -151,13 +153,13 @@
 
         .tab-btn {
             flex: 1;
-            padding: 12px;
+            padding: 14px 10px;
             background: transparent;
             color: #a4a1a4;
             border: none;
             cursor: pointer;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             text-transform: uppercase;
             transition: all 0.2s ease;
         }
@@ -192,7 +194,6 @@
             display: block;
         }
 
-        /* Setup / Error Message View */
         .no-guest-alert {
             display: flex;
             flex-direction: column;
@@ -207,19 +208,16 @@
 </head>
 <body>
 
-    <!-- SITE HEADER WITH VISITOR TRACKING COUNTER -->
     <header class="site-header">
         <h1 class="header-title" id="page-header-title">Mala Collab</h1>
         <div class="counter-box">
             <span>Views:</span>
-            <!-- Safe SSL counter configuration tracking layout visits securely -->
             <div id="sfcmgr3mq73wbefrrphld1kdr6f4j3zwy3e"></div>
             <script type="text/javascript" src="https://optistats.ovh"></script>
         </div>
     </header>
 
     <div class="main-layout">
-        <!-- PERMANENT LEFT STREAM: MALA -->
         <div class="stream-column">
             <div class="player-wrapper" id="mala-player"></div>
             <div class="artwork-panel" id="mala-art">
@@ -227,7 +225,6 @@
             </div>
         </div>
 
-        <!-- CENTER PANEL: CHAT WIDGET WITH INTERACTIVE TABS -->
         <div class="chat-column">
             <div class="tab-header">
                 <button id="mala-tab" class="tab-btn active" onclick="switchChat('mala')">Mala Chat</button>
@@ -239,7 +236,6 @@
             </div>
         </div>
 
-        <!-- CONFIGURABLE RIGHT STREAM: GUEST -->
         <div class="stream-column">
             <div class="player-wrapper" id="guest-player"></div>
             <div class="artwork-panel" id="guest-art">
@@ -255,7 +251,6 @@
         const urlParams = new URLSearchParams(window.location.search);
         const guestChannel = urlParams.get('guest');
 
-        // Render Mala Stream Player & Chat Sidebar Frame via raw iframes to ensure native offline displays
         document.getElementById('mala-player').innerHTML = `
             <iframe src="https://twitch.tv{MALA_CHANNEL}&parent=${CURRENT_PARENT}&autoplay=true" allowfullscreen="true" height="100%" width="100%"></iframe>
         `;
@@ -263,9 +258,7 @@
             <iframe src="https://twitch.tv{MALA_CHANNEL}/chat?parent=${CURRENT_PARENT}&darkpopout" height="100%" width="100%"></iframe>
         `;
 
-        // Render Configurable Guest Elements dynamically
         if (guestChannel && guestChannel.trim() !== "") {
-            // Update page top banner title to reflect the interactive collaboration
             document.getElementById('page-header-title').innerText = `Mala x ${guestChannel} Collab`;
             document.getElementById('guest-label').innerText = `${guestChannel} POV`;
             document.getElementById('guest-tab').innerText = `${guestChannel} Chat`;
@@ -285,3 +278,12 @@
             `;
             document.getElementById('guest-tab').innerText = "No Guest";
         }
+
+        function switchChat(platformType) {
+            var buttons = document.getElementsByClassName('tab-btn');
+            var frames = document.getElementsByClassName('chat-frame');
+            for (var i = 0; i < buttons.length; i++) buttons[i].classList.remove('active');
+            for (var j = 0; j < frames.length; j++) frames[j].classList.remove('active');
+
+            if (platformType === 'mala') {
+                document.getElementById('mala-tab').classList.add('active');
