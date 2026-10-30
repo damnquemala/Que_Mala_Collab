@@ -178,7 +178,7 @@
         <div class="stream-column">
             <div class="player-wrapper" id="mala-player"></div>
             <div class="artwork-panel" id="mala-art">
-                <div class="panel-label">Que_Mala POV</div>
+                <div class="panel-label">que_mala POV</div>
             </div>
         </div>
 
@@ -206,7 +206,8 @@
     <!-- Twitch Embed Architecture Script -->
     <script src="https://twitch.tv"></script>
     <script>
-        const MALA_CHANNEL = "Que_Mala"; 
+        // Completely lowercase to pass Twitch's security validation rules
+        const MALA_CHANNEL = "que_mala"; 
         
         // Locked specifically to your active domain for absolute verification
         const CURRENT_PARENT = "damnquemala.github.io"; 
