@@ -29,13 +29,47 @@
             overflow: hidden;
         }
 
+        /* Top Header & Counter Section */
+        .site-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--panel-bg);
+            border: 2px solid var(--mala-purple);
+            border-radius: 6px;
+            padding: 10px 20px;
+            margin-bottom: 12px;
+            box-shadow: 0 0 10px rgba(114, 9, 183, 0.2);
+        }
+
+        .header-title {
+            margin: 0;
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-color);
+            font-weight: 800;
+            text-shadow: 0 0 5px var(--mala-red);
+        }
+
+        .counter-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #a4a1a4;
+        }
+
         /* Layout Architecture */
         .main-layout {
             display: grid;
             grid-template-columns: 2fr 1fr 2fr;
             gap: 12px;
             flex-grow: 1;
-            height: calc(100vh - 24px);
+            height: calc(100vh - 85px); /* Adjusted layout to accommodate the header height */
         }
 
         /* Stream & Art Containers */
@@ -173,6 +207,17 @@
 </head>
 <body>
 
+    <!-- SITE HEADER WITH VISITOR TRACKING COUNTER -->
+    <header class="site-header">
+        <h1 class="header-title" id="page-header-title">Mala Collab</h1>
+        <div class="counter-box">
+            <span>Views:</span>
+            <!-- Safe SSL counter configuration tracking layout visits securely -->
+            <div id="sfcmgr3mq73wbefrrphld1kdr6f4j3zwy3e"></div>
+            <script type="text/javascript" src="https://optistats.ovh"></script>
+        </div>
+    </header>
+
     <div class="main-layout">
         <!-- PERMANENT LEFT STREAM: MALA -->
         <div class="stream-column">
@@ -203,30 +248,31 @@
         </div>
     </div>
 
-    <!-- Twitch Embed Architecture Script -->
-    <script src="https://twitch.tv"></script>
     <script>
-        // Completely lowercase to pass Twitch's security validation rules
         const MALA_CHANNEL = "que_mala"; 
-        
-        // Locked specifically to your active domain for absolute verification
         const CURRENT_PARENT = "damnquemala.github.io"; 
 
         const urlParams = new URLSearchParams(window.location.search);
         const guestChannel = urlParams.get('guest');
 
-        // Render Mala Stream Player & Chat Sidebar Frame
-        new Twitch.Player("mala-player", { channel: MALA_CHANNEL, width: "100%", height: "100%", parent: [CURRENT_PARENT] });
+        // Render Mala Stream Player & Chat Sidebar Frame via raw iframes to ensure native offline displays
+        document.getElementById('mala-player').innerHTML = `
+            <iframe src="https://twitch.tv{MALA_CHANNEL}&parent=${CURRENT_PARENT}&autoplay=true" allowfullscreen="true" height="100%" width="100%"></iframe>
+        `;
         document.getElementById('mala-chat-target').innerHTML = `
             <iframe src="https://twitch.tv{MALA_CHANNEL}/chat?parent=${CURRENT_PARENT}&darkpopout" height="100%" width="100%"></iframe>
         `;
 
         // Render Configurable Guest Elements dynamically
         if (guestChannel && guestChannel.trim() !== "") {
+            // Update page top banner title to reflect the interactive collaboration
+            document.getElementById('page-header-title').innerText = `Mala x ${guestChannel} Collab`;
             document.getElementById('guest-label').innerText = `${guestChannel} POV`;
             document.getElementById('guest-tab').innerText = `${guestChannel} Chat`;
 
-            new Twitch.Player("guest-player", { channel: guestChannel, width: "100%", height: "100%", parent: [CURRENT_PARENT] });
+            document.getElementById('guest-player').innerHTML = `
+                <iframe src="https://twitch.tv{guestChannel}&parent=${CURRENT_PARENT}&autoplay=true" allowfullscreen="true" height="100%" width="100%"></iframe>
+            `;
             document.getElementById('guest-chat-target').innerHTML = `
                 <iframe src="https://twitch.tv{guestChannel}/chat?parent=${CURRENT_PARENT}&darkpopout" height="100%" width="100%"></iframe>
             `;
@@ -239,27 +285,3 @@
             `;
             document.getElementById('guest-tab').innerText = "No Guest";
         }
-
-        // Navigation tab functions
-        function switchChat(platformType) {
-            var buttons = document.getElementsByClassName('tab-btn');
-            var frames = document.getElementsByClassName('chat-frame');
-            
-            for (var i = 0; i < buttons.length; i++) {
-                buttons[i].classList.remove('active');
-            }
-            for (var j = 0; j < frames.length; j++) {
-                frames[j].classList.remove('active');
-            }
-
-            if (platformType === 'mala') {
-                document.getElementById('mala-tab').classList.add('active');
-                document.getElementById('mala-chat-target').classList.add('active');
-            } else if (platformType === 'guest') {
-                document.getElementById('guest-tab').classList.add('active');
-                document.getElementById('guest-chat-target').classList.add('active');
-            }
-        }
-    </script>
-</body>
-</html>
