@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mala Collab - Live Multi-View</title>
+    <style>
+        /* Mala Branding: Black, Red, & Purple Palette */
+        :root {
+            --bg-color: #0b090a;
+            --panel-bg: #161a1d;
+            --mala-red: #e5383b;
+            --mala-purple: #7209b7;
+            --accent-glow: #b7094c;
+            --text-color: #f5f3f4;
+            --border-glow: 0 0 10px rgba(229, 56, 59, 0.4);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 12px;
+            box-sizing: border-box;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Layout Architecture */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr 2fr;
+            gap: 12px;
+            flex-grow: 1;
+            height: calc(100vh - 24px);
+        }
+
+        /* Stream & Art Containers */
+        .stream-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        .player-wrapper {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border: 2px solid var(--mala-purple);
+            box-shadow: 0 0 12px rgba(114, 9, 183, 0.3);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .player-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Dynamic Visual Panel Art (Bottom half of columns) */
+        .artwork-panel {
+            flex-grow: 1;
+            margin-top: 12px;
+            border: 2px solid var(--mala-red);
+            box-shadow: var(--border-glow);
+            border-radius: 6px;
+            background-size: cover;
+            background-position: center;
+            background-color: var(--panel-bg);
+            display: flex;
+            align-items: flex-end;
+            padding: 15px;
+        }
+
+        /* Custom Visual Panels using Mala's BRB art and a stylized placeholder for the guest */
+        #mala-art {
+            background-image: linear-gradient(to top, rgba(11,9,10,0.95), rgba(11,9,10,0.3)), url(C:\Users\damnq\Desktop\Stream Related\Stream Screens\Gothic_Horror_Streamer_End_Screen.png); 
+        }
+
+        #guest-art {
+            background-image: linear-gradient(to top, rgba(11,9,10,0.95), rgba(11,9,10,0.5)), url(C:\Users\damnq\Desktop\Stream Related\Stream Screens\Gothic_Horror_Streamer_End_Screen.png); 
+            filter: hue-rotate(270deg) brightness(0.7); /* Distinct purple/dark aesthetic twist for guest column panel */
+        }
+
+        .panel-label {
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px #000;
+        }
+        #mala-art .panel-label { color: var(--mala-red); }
+        #guest-art .panel-label { color: var(--mala-purple); }
+
+        /* Central Interactive Chat Widget */
+        .chat-column {
+            background-color: var(--panel-bg);
+            border: 2px solid var(--accent-glow);
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        /* Chat Tabs Configuration */
+        .tab-header {
+            display: flex;
+            background: #000;
+            border-bottom: 2px solid var(--accent-glow);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            color: #a4a1a4;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            color: #fff;
+            background: rgba(225, 56, 59, 0.1);
+        }
+
+        .tab-btn.active {
+            color: #fff;
+            background: var(--mala-purple);
+            border-bottom: 3px solid var(--mala-red);
+        }
+
+        .chat-container {
+            flex-grow: 1;
+            position: relative;
+        }
+
+        .chat-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: none;
+        }
+
+        .chat-frame.active {
+            display: block;
+        }
+
+        /* Setup / Error Message View */
+        .no-guest-alert {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            text-align: center;
+            padding: 20px;
+            color: #ffb703;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-layout">
+        <!-- PERMANENT LEFT STREAM: MALA -->
+        <div class="stream-column">
+            <div class="player-wrapper" id="mala-player"></div>
+            <div class="artwork-panel" id="mala-art">
+                <div class="panel-label">Que_Mala POV</div>
+            </div>
+        </div>
+
+        <!-- CENTER PANEL: CHAT WIDGET WITH INTERACTIVE TABS -->
+        <div class="chat-column">
+            <div class="tab-header">
+                <button id="mala-tab" class="tab-btn active" onclick="switchChat('mala')">Mala Chat</button>
+                <button id="guest-tab" class="tab-btn" onclick="switchChat('guest')">Guest Chat</button>
+            </div>
+            <div class="chat-container">
+                <div id="mala-chat-target" class="chat-frame active"></div>
+                <div id="guest-chat-target" class="chat-frame"></div>
+            </div>
+        </div>
+
+        <!-- CONFIGURABLE RIGHT STREAM: GUEST -->
+        <div class="stream-column">
+            <div class="player-wrapper" id="guest-player"></div>
+            <div class="artwork-panel" id="guest-art">
+                <div class="panel-label" id="guest-label">Guest POV</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Twitch Embed Architecture Script -->
+    <script src="https://twitch.tv"></script>
+    <script>
+        // 1. Establish the Permanent Channels & Security Parent
+        const MALA_CHANNEL = "Que_Mala"; 
+        
+        // Dynamic Domain Resolver: Pulls the window domain automatically for Twitch embedding policies
+        const CURRENT_PARENT = window.location.hostname || "localhost"; 
+
+        // 2. Parse URL parameters to fetch the target guest
+        const urlParams = new URLSearchParams(window.location.search);
+        const guestChannel = urlParams.get('guest');
+
+        // 3. Render Mala (Permanent Left Elements)
+        new Twitch.Player("mala-player", { channel: MALA_CHANNEL, width: "100%", height: "100%", parent: [CURRENT_PARENT] });
+        document.getElementById('mala-chat-target').innerHTML = `
+            <iframe src="https://twitch.tv{MALA_CHANNEL}/chat?parent=${CURRENT_PARENT}&darkpopout" height="100%" width="100%"></iframe>
+        `;
+
+        // 4. Evaluate and Render Guest Streamer Logic
+        if (guestChannel) {
+            // Update Text Overlays dynamically based on parameters
+            document.getElementById('guest-label').innerText = `${guestChannel} POV`;
+            document.getElementById('guest-tab').innerText = `${guestChannel} Chat`;
+
+            // Load Twitch Elements for the verified guest string
+            new Twitch.Player("guest-player", { channel: guestChannel, width: "100%", height: "100%", parent: [CURRENT_PARENT] });
+            document.getElementById('guest-chat-target').innerHTML = `
+                <iframe src="https://twitch.tv{guestChannel}/chat?parent=${CURRENT_PARENT}&darkpopout" height="100%" width="100%"></iframe>
+            `;
+        } else {
+            // Error handling fallback display if page is visited without a defined parameter
+            document.getElementById('guest-player').innerHTML = `
+                <div class="no-guest-alert">
+                    <h3>No Guest Configured</h3>
+                    <p>Add <strong>?guest=username</strong> to the URL path.</p>
+                </div>
+            `;
+            document.getElementById('guest-tab').innerText = "No Guest";
+        }
+
+        // 5. Interactive Chat Sidebar Navigation Rules
+        function switchChat(platformType) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.chat-frame').forEach(frame => frame.classList.remove('active'));
+
+            if (platformType === 'mala') {
+                document.getElementById('mala-tab').classList.add('active');
+                document.getElementById('mala-chat-target').classList.add('active');
+            } else if (platformType === 'guest') {
+                document.getElementById('guest-tab').classList.add('active');
+                document.getElementById('guest-chat-target').classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
